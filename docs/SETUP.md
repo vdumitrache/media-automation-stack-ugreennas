@@ -307,8 +307,6 @@ docker run --rm -v ./cloudflared:/home/nonroot/.cloudflared cloudflare/cloudflar
 docker run --rm -v ./cloudflared:/home/nonroot/.cloudflared cloudflare/cloudflared tunnel route dns nas-tunnel yourdomain.com
 ```
 
-**5. Deploy**
-
 </details>
 
 <details>
