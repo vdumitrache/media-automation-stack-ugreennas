@@ -46,7 +46,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
     healthcheck:
-      test: ["CMD", "/deunhealth", "healthcheck"]
+      test: ["CMD", "/app", "healthcheck"]
       interval: 60s
       timeout: 10s
       retries: 3

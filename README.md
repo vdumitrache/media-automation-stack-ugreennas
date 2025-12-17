@@ -48,7 +48,7 @@ Ask Claude to help deploy the stack - it reads the [`.claude/instructions.md`](.
 | Compose File | Layer | Services |
 |--------------|-------|----------|
 | `docker-compose.traefik.yml` | Infrastructure | Traefik (reverse proxy) |
-| `docker-compose.cloudflared.yml` | Infrastructure | Cloudflared (tunnel) |
+| `docker-compose.cloudflared.yml` | External Access | Cloudflared (tunnel) - *Option A only* |
 | `docker-compose.arr-stack.yml` | Media | Gluetun, qBittorrent, Sonarr, Radarr, Prowlarr, Jellyfin, Jellyseerr, Bazarr, FlareSolverr, Pi-hole, WireGuard |
 | `docker-compose.utilities.yml` | Optional | deunhealth, Uptime Kuma, duc |
 
