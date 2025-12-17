@@ -19,14 +19,16 @@ A production-ready Docker Compose stack for media automation, featuring VPN rout
 ## Overview
 
 This stack provides a complete media library management solution with:
-- **VPN-protected networking** (Gluetun + Surfshark)
-- **SSL/TLS certificates** (Traefik + Cloudflare)
+- **VPN-protected networking** via Gluetun (supports 30+ VPN providers)
+- **SSL/TLS certificates** (Traefik + Cloudflare) - *optional, for remote access*
 - **Media library organization** (Sonarr, Radarr, Prowlarr, Bazarr)
 - **Media streaming** (Jellyfin)
 - **Request management** (Jellyseerr)
-- **Remote access** (WireGuard VPN)
+- **Remote access** (WireGuard VPN) - *optional*
 - **Ad-blocking DNS** (Pi-hole)
 - **Service monitoring** (Uptime Kuma)
+
+> **Local-only deployment?** You can skip the domain, Cloudflare, and remote access features. See [Deployment Options in README.md](../README.md#deployment-options).
 
 ### Services Included
 
@@ -97,22 +99,25 @@ For devices on your home network (FireTV, phones, tablets), use the local URLs f
 ```
 Internet
     │
-    ├─── Port 80/443 ──────────► Traefik (Reverse Proxy)
-    │                                │
-    │                                ├─► traefik-proxy network (192.168.100.0/24)
-    │                                │   │
-    │                                │   ├─► Jellyfin (.4)
-    │                                │   ├─► Pi-hole (.5)
-    │                                │   ├─► WireGuard (.6)
-    │                                │   ├─► Uptime Kuma (.13)
-    │                                │   └─► Other services
-    │                                │
-    │                                └─► Gluetun (.3) ◄─── VPN Connection (Surfshark)
-    │                                        │
-    │                                        └─► qBittorrent, Sonarr, Radarr, Prowlarr
-    │                                            (network_mode: service:gluetun)
+    ├─── Cloudflare Tunnel ────────► Traefik (Reverse Proxy, ports 8080/8443)
+    │    (recommended)                   │
+    │                                    ├─► traefik-proxy network (192.168.100.0/24)
+    │                                    │   │
+    │                                    │   ├─► Jellyfin (.4)
+    │                                    │   ├─► Pi-hole (.5)
+    │                                    │   ├─► WireGuard (.6)
+    │                                    │   ├─► Uptime Kuma (.13)
+    │                                    │   └─► Other services
+    │                                    │
+    │                                    └─► Gluetun (.3) ◄─── VPN Connection (your provider)
+    │                                            │
+    │                                            └─► qBittorrent, Sonarr, Radarr, Prowlarr
+    │                                                (network_mode: service:gluetun)
     │
-    └─── Port 51820/udp ───────────► WireGuard VPN Server
+    └─── Port 51820/udp ───────────► WireGuard VPN Server (optional)
+
+Note: Ugreen NAS nginx uses ports 80/443, so Traefik uses 8080/8443.
+Cloudflare Tunnel bypasses port forwarding entirely (recommended).
 ```
 
 ### Why Three Separate Docker Compose Files?
@@ -163,7 +168,7 @@ Because of this separation:
 1. **Deploy Traefik first** (creates network, sets up SSL)
 2. **Deploy arr-stack second** (joins network, uses Traefik)
 
-**Alternative**: You could combine them into one file, but you'd lose the flexibility and would need to restart everything together. The two-file approach is more maintainable and follows industry best practices.
+**Alternative**: You could combine them into one file, but you'd lose the flexibility and would need to restart everything together. The three-file approach is more maintainable and follows industry best practices.
 
 ### Storage Structure
 
@@ -206,20 +211,22 @@ Because of this separation:
 - Basic Linux command-line knowledge
 
 ### External Services
-1. **Domain Name** (e.g., yourdomain.com)
-2. **Cloudflare Account** (free tier works)
-   - Domain added to Cloudflare
-   - API token with DNS edit permissions
-3. **Surfshark VPN Subscription**
-   - Active account with WireGuard credentials
-   - Alternative: Modify for NordVPN, ProtonVPN, etc. (Gluetun supports many providers)
+
+**Required:**
+- **VPN Subscription** - Any provider supported by Gluetun (30+ options)
+  - Surfshark, NordVPN, PIA, Mullvad, ProtonVPN, etc.
+  - See [Gluetun providers](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers)
+
+**Optional (for remote access):**
+- **Domain Name** (e.g., yourdomain.com) - ~$10/year from any registrar
+- **Cloudflare Account** (free tier) - For DNS and Cloudflare Tunnel
+
+> **Local-only?** Skip domain and Cloudflare. Access services via `http://NAS_IP:PORT`.
 
 ### Network Requirements
-- Static IP for NAS (recommended)
-- Port forwarding on router:
-  - 80 → NAS:80 (HTTP)
-  - 443 → NAS:443 (HTTPS)
-  - 51820/udp → NAS:51820 (WireGuard)
+- Static IP for NAS (recommended for local access)
+- **Cloudflare Tunnel** (recommended) - Bypasses port forwarding entirely
+- *Alternative*: Port forwarding (80→8080, 443→8443, 51820/udp) - Often blocked by ISP/CGNAT
 
 ---
 
@@ -243,10 +250,13 @@ nano .env
 ```
 
 **Required values**:
+- `VPN_SERVICE_PROVIDER`: Your VPN provider (surfshark, nordvpn, etc.)
+- VPN credentials (varies by provider - see [Step 3](#step-3-add-vpn-credentials))
+- `PIHOLE_UI_PASS`: Pi-hole admin password
+
+**For remote access** (optional):
 - `DOMAIN`: Your domain (e.g., yourdomain.com)
 - `CF_DNS_API_TOKEN`: Cloudflare API token
-- `SURFSHARK_PRIVATE_KEY`: Surfshark WireGuard private key
-- `PIHOLE_UI_PASS`: Pi-hole admin password
 - `WG_PASSWORD_HASH`: WireGuard password hash
 - `TRAEFIK_DASHBOARD_AUTH`: Traefik dashboard auth
 
@@ -260,7 +270,7 @@ nano .env
 
 If you want all your media folders visible in the UGOS Files app:
 
-1. Open UGOS web interface (http://your-nas-ip:8080)
+1. Open UGOS web interface (http://your-nas-ip)
 2. Open the **Files** app
 3. Create the folder structure:
    - **Media** (shared folder)
@@ -415,23 +425,23 @@ Your `.env` already has:
 
 ---
 
-#### Step 3: Add Surfshark VPN Credentials (WireGuard)
+#### Step 3: Add VPN Credentials
+
+Gluetun supports 30+ VPN providers. Configuration varies by provider - see [Gluetun provider docs](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers).
+
+<details>
+<summary><strong>Surfshark (WireGuard) - Click to expand</strong></summary>
 
 **Get your WireGuard configuration from**: https://my.surfshark.com/
 
 1. Login to Surfshark
-2. Navigate to: **VPN** → **Manual Setup**
-3. Select device type: **Router**
-4. Select protocol: **WireGuard**
-5. When asked "Do you have a WireGuard key pair?", select **"I don't"**
-6. Surfshark will generate your key pair
-7. **Select a server location** (e.g., "United Kingdom - London" or "USA - New York")
+2. Navigate to: **VPN** → **Manual Setup** → **Router** → **WireGuard**
+3. Select **"I don't have a key pair"** to generate new keys
+4. **Select a server location** (e.g., "United Kingdom" or "USA - New York")
    - You MUST select a location before the Download button appears
-   - **Choose based on your priority:**
-     - Closest location = fastest speeds
-     - Specific country = access region-locked content (UK for BBC iPlayer, US for US-only services)
-8. Click **"Download"** to get the `.conf` file
-9. **Open the downloaded file** and extract these values:
+   - Choose based on your priority: closest = fastest, or specific country for region-locked content
+5. Click **"Download"** to get the `.conf` file
+6. **Open the downloaded file** and extract:
 
    ```ini
    [Interface]
@@ -439,13 +449,32 @@ Your `.env` already has:
    PrivateKey = uHSC4GWQ...        ← Copy this
    ```
 
-10. **Add** to `.env`:
+7. **Add** to `.env`:
    ```bash
-   SURFSHARK_PRIVATE_KEY=your_private_key_here
-   SURFSHARK_WG_ADDRESS=10.14.0.2/16
+   VPN_SERVICE_PROVIDER=surfshark
+   VPN_TYPE=wireguard
+   WIREGUARD_PRIVATE_KEY=your_private_key_here
+   WIREGUARD_ADDRESSES=10.14.0.2/16
+   SERVER_COUNTRIES=United Kingdom
    ```
 
-**Note**: We use WireGuard (not OpenVPN) because it's faster and more reliable with Gluetun. You MUST download the config file to get the Address field - it's not shown on the web interface.
+**Note**: You MUST download the config file to get the Address field - it's not shown on the web interface.
+
+</details>
+
+<details>
+<summary><strong>Other Providers (NordVPN, PIA, Mullvad, etc.)</strong></summary>
+
+Each provider has different requirements. See the Gluetun wiki for your provider:
+- [NordVPN](https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/nordvpn.md)
+- [Private Internet Access](https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/private-internet-access.md)
+- [Mullvad](https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/mullvad.md)
+- [ProtonVPN](https://github.com/qdm12/gluetun-wiki/blob/main/setup/providers/protonvpn.md)
+- [All providers](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers)
+
+Update `.env` with the variables required by your provider.
+
+</details>
 
 ---
 
@@ -527,19 +556,24 @@ TRAEFIK_DASHBOARD_AUTH=admin:$$apr1$$...$$...
 
 #### Step 7: Verify Your .env File
 
-Your completed `.env` should look like this:
+Your completed `.env` should have these filled in:
 
 ```bash
-DOMAIN=yourdomain.com
-CF_DNS_API_TOKEN=abc123...           # ✅ Filled
-SURFSHARK_USER=your@email.com        # ✅ Filled
-SURFSHARK_PASSWORD=yourpass          # ✅ Filled
+# VPN (required) - variables depend on your provider
+VPN_SERVICE_PROVIDER=surfshark      # ✅ Your provider
+WIREGUARD_PRIVATE_KEY=...           # ✅ Or OPENVPN_USER/PASSWORD
+
+# Domain/Remote Access (optional - skip for local-only)
+DOMAIN=yourdomain.com               # ✅ If using remote access
+CF_DNS_API_TOKEN=abc123...          # ✅ If using Cloudflare
+
+# Service passwords
 PIHOLE_UI_PASS=yourpass             # ✅ Filled
-WG_PASSWORD_HASH=$2a$12$...         # ✅ Filled
-TRAEFIK_DASHBOARD_AUTH=admin:$$...  # ✅ Filled
+WG_PASSWORD_HASH=$2a$12$...         # ✅ If using WireGuard remote access
+TRAEFIK_DASHBOARD_AUTH=admin:$$...  # ✅ If using Traefik
 ```
 
-**All fields filled?** ✅ You're ready for deployment!
+**All required fields filled?** ✅ You're ready for deployment!
 
 ---
 
@@ -1043,13 +1077,14 @@ See TROUBLESHOOTING.md → "IP Address Conflicts" for full IP allocation plan.
 
 ### Q: Gluetun error: "Wireguard settings: interface address is not set"?
 
-**Problem**: Surfshark WireGuard requires Address field not shown on web UI
+**Problem**: WireGuard requires an Address field that some VPN providers don't show on their web UI
 
 **Solution**:
-1. Go to https://my.surfshark.com/ → VPN → Manual Setup → Router → WireGuard
-2. **Download** the full .conf file (don't just copy from web)
-3. Open .conf file and find `Address = 10.14.0.2/16` in [Interface] section
-4. Add to `.env`: `SURFSHARK_WG_ADDRESS=10.14.0.2/16`
+1. Download the full WireGuard `.conf` file from your VPN provider (don't just copy credentials from web)
+2. Open the .conf file and find `Address = x.x.x.x/xx` in the [Interface] section
+3. Add to `.env`: `WIREGUARD_ADDRESSES=10.14.0.2/16` (use your actual value)
+
+See [Gluetun wiki](https://github.com/qdm12/gluetun-wiki) for provider-specific setup.
 
 ### Q: Docker commands fail with "permission denied"?
 

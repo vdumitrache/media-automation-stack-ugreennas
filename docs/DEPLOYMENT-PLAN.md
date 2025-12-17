@@ -136,23 +136,22 @@ cp .env.example .env
 5. Create and **copy the token**
 6. Add to `.env`: `CF_DNS_API_TOKEN=your_token_here`
 
-#### Step 3: Surfshark VPN Credentials (WireGuard)
-1. Go to: https://my.surfshark.com/
-2. Navigate: VPN → Manual Setup → Router → WireGuard
-3. Select "I don't have a key pair" to generate new keys
-4. **Select a server location** (e.g., "United Kingdom - London" or "USA - New York")
-   - You MUST select a location before the Download button appears
-   - Choose based on your priority: closest = fastest speeds, or specific country for region-locked content
-5. Click **"Download"** to get the full WireGuard configuration file (`.conf`)
-6. Open the downloaded file and extract:
-   - **PrivateKey** (from [Interface] section)
-   - **Address** (from [Interface] section, e.g., 10.14.0.2/16)
-7. Add to `.env`:
+#### Step 3: VPN Credentials
+Gluetun supports 30+ VPN providers. See [Gluetun providers](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers) for your provider's specific setup.
+
+**Example (Surfshark WireGuard):**
+1. Go to: https://my.surfshark.com/ → VPN → Manual Setup → Router → WireGuard
+2. Generate keys and select a server location
+3. Download the `.conf` file and extract PrivateKey and Address
+4. Add to `.env`:
    ```
-   SURFSHARK_PRIVATE_KEY=your_private_key_here
-   SURFSHARK_WG_ADDRESS=10.14.0.2/16
+   VPN_SERVICE_PROVIDER=surfshark
+   VPN_TYPE=wireguard
+   WIREGUARD_PRIVATE_KEY=your_private_key_here
+   WIREGUARD_ADDRESSES=10.14.0.2/16
    ```
-**Note**: The Address field is NOT shown on the web interface - you MUST download the config file.
+
+**Other providers:** Check the Gluetun wiki for NordVPN, PIA, Mullvad, ProtonVPN, etc.
 
 #### Step 4: Pi-hole Password
 Generate secure password or choose your own:
