@@ -20,6 +20,20 @@ This project provides configuration files for **legal, open-source software** de
 | [Home Assistant](docs/HOME-ASSISTANT.md) | Notifications integration |
 | [Legal](docs/LEGAL.md) | Intended use, disclaimer |
 
+<details>
+<summary>Using Claude Code for guided setup</summary>
+
+[Claude Code](https://docs.anthropic.com/en/docs/claude-code) can walk you through deployment, executing commands and troubleshooting as you go.
+
+```bash
+npm install -g @anthropic-ai/claude-code
+cd arr-stack-ugreennas && claude
+```
+
+Ask Claude to help deploy the stack - it reads [`.claude/instructions.md`](.claude/instructions.md) automatically.
+
+</details>
+
 ---
 
 ## Features
