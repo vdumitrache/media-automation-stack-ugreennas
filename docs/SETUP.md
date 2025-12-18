@@ -337,6 +337,21 @@ DOMAIN=yourdomain.com
 
 </details>
 
+### Update Traefik Config
+
+Edit `traefik/traefik.yml` and replace `yourdomain.com` with your actual domain (3 places):
+
+```yaml
+# Line 31-33: SSL certificate domains
+domains:
+  - main: yourdomain.com      # ← your domain
+    sans:
+      - "*.yourdomain.com"    # ← your domain
+
+# Line 39: Let's Encrypt email
+email: admin@yourdomain.com   # ← your email
+```
+
 ---
 
 ## Step 4: Deploy Services
