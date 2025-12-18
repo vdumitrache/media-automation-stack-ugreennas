@@ -14,12 +14,14 @@ arr-stack-ugreennas/
 ├── docker-compose.plex-arr-stack.yml  # Plex variant (untested)
 ├── docker-compose.cloudflared.yml  # Cloudflare tunnel
 ├── traefik/                        # Traefik configuration
-│   ├── traefik.yml                 # Static config
+│   ├── traefik.yml.example         # Static config template (copy & customize)
+│   ├── traefik.yml                 # Your config (gitignored)
 │   └── dynamic/
-│       ├── tls.yml                 # TLS settings
-│       ├── vpn-services.yml        # Service routing (Jellyfin)
-│       ├── vpn-services-plex.yml   # Service routing (Plex variant)
-│       └── utilities.yml           # Utilities routing
+│       ├── tls.yml                 # TLS settings (generic, no customization needed)
+│       ├── vpn-services.yml.example    # Jellyfin routing template
+│       ├── vpn-services-plex.yml.example  # Plex routing template
+│       ├── vpn-services.yml        # Your routing config (gitignored)
+│       └── utilities.yml           # Utilities routing (generic)
 ├── .env.example                    # Environment template
 ├── .env                            # Your configuration (gitignored)
 ├── docs/                           # Documentation
@@ -97,8 +99,25 @@ This project separates public documentation from private configuration:
 | Type | Location | Git Tracked | Contains |
 |------|----------|-------------|----------|
 | **Public docs** | `docs/*.md`, `README.md` | Yes | Generic instructions with placeholders |
+| **Config templates** | `*.example` files | Yes | Templates with `yourdomain.com` placeholders |
+| **Your configs** | `traefik/*.yml`, `.env` | No | Your actual domain, customizations |
 | **Private config** | `.claude/config.local.md` | No | Actual hostnames, IPs, usernames |
 | **Credentials** | `.env` | No | Passwords, API tokens, private keys |
+
+### Config File Pattern
+
+Files requiring domain customization use the `.example` pattern:
+
+```bash
+# On first setup, copy templates and customize
+cp traefik/traefik.yml.example traefik/traefik.yml
+cp traefik/dynamic/vpn-services.yml.example traefik/dynamic/vpn-services.yml
+# Edit both files: replace yourdomain.com with your actual domain
+```
+
+The actual `.yml` files are gitignored, so:
+- `git pull` updates only `.example` files (won't overwrite your config)
+- To get new features, manually merge changes from `.example` to your `.yml`
 
 **Setup**: Copy `.claude/config.local.md.example` to `.claude/config.local.md` and fill in your values.
 
@@ -115,9 +134,12 @@ This repo includes validation hooks that run on `git commit`:
 | YAML syntax | Yes | Catches invalid YAML before it breaks deployment |
 | Port/IP conflicts | Yes | Detects duplicate ports or static IPs |
 | Compose drift | Warn | Flags Jellyfin/Plex inconsistencies |
-| Hardcoded domain | Warn | Flags your domain in tracked files |
+| Hardcoded domain | Block | Detects your hostname in tracked files (leaks identity) |
+| Hardcoded domain | Warn | Detects your domain in tracked files (may be intentional) |
 | NAS .env backup | Warn | Checks `.env.nas.backup` matches NAS |
 | Uptime monitors | Warn | Checks Uptime Kuma monitors match services |
+
+**Security note**: The secrets and hardcoded domain checks scan **all tracked files** in the repo, not just staged changes. This catches issues that may have been committed before these checks existed.
 
 ### Install
 
@@ -175,12 +197,19 @@ scripts/
 ├── backup-volumes.sh       # Backup all Docker named volumes
 ├── pre-commit              # Main hook (symlinked from .git/hooks/)
 └── lib/
-    ├── check-secrets.sh
-    ├── check-env-vars.sh
-    ├── check-yaml-syntax.sh
-    ├── check-conflicts.sh
-    ├── check-compose-drift.sh
-    ├── check-hardcoded-domain.sh
-    ├── check-env-backup.sh
-    └── check-uptime-monitors.sh
+    ├── common.sh               # Shared functions (NAS config, SSH, file scanning)
+    ├── check-secrets.sh        # Detect API keys, private keys
+    ├── check-env-vars.sh       # Ensure compose vars are documented
+    ├── check-yaml-syntax.sh    # Validate YAML syntax
+    ├── check-conflicts.sh      # Detect port/IP conflicts
+    ├── check-compose-drift.sh  # Compare Jellyfin/Plex variants
+    ├── check-hardcoded-domain.sh  # Detect domain/hostname in tracked files
+    ├── check-env-backup.sh     # Compare .env.nas.backup with NAS
+    └── check-uptime-monitors.sh   # Verify Uptime Kuma monitors
 ```
+
+The `common.sh` library provides shared functions used by all checks:
+- **NAS config**: Reads hostname/user from `.claude/config.local.md`
+- **Domain config**: Reads domain from `.env` or `.env.nas.backup`
+- **SSH helpers**: Standardized SSH commands with timeouts
+- **File scanning**: Functions to get tracked/staged files
