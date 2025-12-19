@@ -144,23 +144,19 @@ UGOS handles automatic updates natively (no Watchtower needed):
 
 ## Backups
 
-Daily backup to USB stick at `/mnt/arr-backup`. Keeps 7 days of backups.
+**Quick backup** (essential configs only, ~12MB compressed):
 
 ```bash
-# Install backup script
-sudo cp scripts/arr-backup.sh /usr/local/bin/ && sudo chmod +x /usr/local/bin/arr-backup.sh
+# Run on NAS
+ssh <user>@<nas-host> "cd /volume1/docker/arr-stack && ./scripts/backup-volumes.sh"
 
-# Add cron job (3am daily)
-(crontab -l 2>/dev/null; echo "0 3 * * * /usr/local/bin/arr-backup.sh") | sudo crontab -
-
-# Manual backup
-sudo /usr/local/bin/arr-backup.sh
-
-# Check logs
-cat /var/log/arr-backup.log
+# Copy to local repo (gitignored backups/ folder)
+ssh <user>@<nas-host> "cd /tmp/arr-stack-backup-* && tar czf - ." > backups/arr-stack-backup-$(date +%Y%m%d).tar.gz
 ```
 
-Backs up: compose files, .env, traefik config, all app data (Sonarr, Radarr, Prowlarr, qBittorrent, Jellyfin, Jellyseerr, Bazarr, Uptime Kuma).
+Backs up: gluetun, qbittorrent, prowlarr, bazarr, wireguard, uptime-kuma, pihole-dnsmasq, jellyseerr configs.
+
+Excludes large regeneratable data: jellyfin-config (407MB), sonarr (43MB), radarr (110MB), pihole blocklists (138MB).
 
 ## Uptime Kuma SQLite
 
