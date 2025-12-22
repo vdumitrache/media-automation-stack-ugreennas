@@ -1,31 +1,32 @@
 # Local .lan domains for port-free service access
-# Traefik routes by Host header to correct service port
+# DNS resolves to Traefik's macvlan IP (where port 80 is available)
+# Traefik routes by Host header to correct service
 #
 # Usage (on NAS):
-#   source .env
-#   sed "s/YOUR_NAS_IP/${NAS_IP}/g" pihole/02-local-dns.conf.example > pihole/02-local-dns.conf
+#   sed "s/TRAEFIK_LAN_IP/10.10.0.11/g" pihole/02-local-dns.conf.example > pihole/02-local-dns.conf
+#   docker exec pihole pihole reloaddns
 #
-# Then restart Pi-hole: docker compose up -d pihole
+# Note: Replace 10.10.0.11 with your chosen TRAEFIK_LAN_IP
 
 # Media services
-address=/jellyfin.lan/YOUR_NAS_IP
-address=/jellyseerr.lan/YOUR_NAS_IP
+address=/jellyfin.lan/TRAEFIK_LAN_IP
+address=/jellyseerr.lan/TRAEFIK_LAN_IP
 
 # *arr stack (VPN-protected)
-address=/sonarr.lan/YOUR_NAS_IP
-address=/radarr.lan/YOUR_NAS_IP
-address=/prowlarr.lan/YOUR_NAS_IP
-address=/bazarr.lan/YOUR_NAS_IP
+address=/sonarr.lan/TRAEFIK_LAN_IP
+address=/radarr.lan/TRAEFIK_LAN_IP
+address=/prowlarr.lan/TRAEFIK_LAN_IP
+address=/bazarr.lan/TRAEFIK_LAN_IP
 
 # Download clients
-address=/qbit.lan/YOUR_NAS_IP
-address=/sabnzbd.lan/YOUR_NAS_IP
+address=/qbit.lan/TRAEFIK_LAN_IP
+address=/sabnzbd.lan/TRAEFIK_LAN_IP
 
 # Infrastructure
-address=/traefik.lan/YOUR_NAS_IP
-address=/pihole.lan/YOUR_NAS_IP
-address=/wg.lan/YOUR_NAS_IP
+address=/traefik.lan/TRAEFIK_LAN_IP
+address=/pihole.lan/TRAEFIK_LAN_IP
+address=/wg.lan/TRAEFIK_LAN_IP
 
 # Utilities
-address=/uptime.lan/YOUR_NAS_IP
-address=/duc.lan/YOUR_NAS_IP
+address=/uptime.lan/TRAEFIK_LAN_IP
+address=/duc.lan/TRAEFIK_LAN_IP

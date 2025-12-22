@@ -632,22 +632,56 @@ This gives Usenet a 30-minute head start before considering torrents.
 
 Access services without remembering port numbers: `http://sonarr.lan` instead of `http://10.10.0.10:8989`.
 
-**Setup (on NAS via SSH):**
+This works by giving Traefik its own IP on your LAN (via macvlan), where it can use port 80. DNS resolves `.lan` domains to that IP.
+
+**Step 1: Add macvlan settings to .env**
+
+Edit `.env` and add:
+```bash
+# Choose an unused IP in your LAN range
+TRAEFIK_LAN_IP=10.10.0.11
+
+# Network interface (check with: ip link show)
+LAN_INTERFACE=eth0
+
+# Your LAN subnet and gateway
+LAN_SUBNET=10.10.0.0/24
+LAN_GATEWAY=10.10.0.1
+```
+
+**Step 2: Reserve the IP in your router**
+
+Go to your router's DHCP settings and reserve `TRAEFIK_LAN_IP` (e.g., 10.10.0.11) so nothing else takes it.
+
+**Step 3: Deploy Traefik with macvlan (on NAS via SSH)**
 ```bash
 cd /volume1/docker/arr-stack
 
-# Create DNS config from template (uses NAS_IP from .env)
-source .env
-sed "s/YOUR_NAS_IP/${NAS_IP}/g" pihole/02-local-dns.conf.example > pihole/02-local-dns.conf
+# Pull latest config
+git pull origin main
+
+# Restart Traefik with new macvlan network
+docker compose -f docker-compose.traefik.yml down
+docker compose -f docker-compose.traefik.yml up -d
+```
+
+**Step 4: Configure DNS**
+```bash
+# Create DNS config pointing to Traefik's IP
+sed "s/TRAEFIK_LAN_IP/10.10.0.11/g" pihole/02-local-dns.conf.example > pihole/02-local-dns.conf
 
 # Enable dnsmasq.d configs in Pi-hole v6 (one-time)
 docker exec pihole sed -i 's/etc_dnsmasq_d = false/etc_dnsmasq_d = true/' /etc/pihole/pihole.toml
 
-# Restart Pi-hole to load new config
-docker compose -f docker-compose.arr-stack.yml restart pihole
+# Reload DNS
+docker exec pihole pihole reloaddns
 ```
 
-**Router DHCP:** Set your router to advertise your NAS IP as DNS server. All devices will then use Pi-hole for DNS, and `.lan` domains will resolve.
+**Step 5: Set router DNS**
+
+Configure your router's DHCP to advertise your NAS IP as DNS server. All devices will then use Pi-hole for DNS.
+
+> **Note:** Due to a Linux kernel limitation, you cannot access `http://sonarr.lan` from the NAS itself. This only affects SSH sessions - all other devices (laptop, phone, TV) work perfectly.
 
 See [REFERENCE.md](REFERENCE.md#local-access-lan-domains) for the full list of `.lan` URLs.
 

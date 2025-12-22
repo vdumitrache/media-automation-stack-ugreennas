@@ -1,4 +1,3 @@
-
 services:
   traefik:
     image: traefik:v3.0
@@ -9,9 +8,12 @@ services:
     networks:
       traefik-proxy:
         ipv4_address: 192.168.100.2
+      # macvlan gives Traefik its own LAN IP where it can use port 80/443
+      # (NAS owns those ports on its IP, but Traefik owns them on TRAEFIK_LAN_IP)
+      traefik-lan:
+        ipv4_address: ${TRAEFIK_LAN_IP:-10.10.0.11}
     ports:
-      - "8080:80"   # HTTP (Ugreen uses port 80, so Traefik uses 8080)
-      - "8443:443"  # HTTPS (Ugreen uses port 443, so Traefik uses 8443)
+      # Dashboard only - HTTP/HTTPS served via macvlan IP on standard ports
       - "9090:8080" # Traefik Dashboard
     environment:
       # CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}  # Only needed for Option B (port forwarding with DNS challenge)
@@ -53,3 +55,13 @@ services:
 networks:
   traefik-proxy:
     external: true
+  # macvlan network gives Traefik its own IP on your physical LAN
+  # This allows Traefik to own port 80/443 (which NAS can't give up)
+  traefik-lan:
+    driver: macvlan
+    driver_opts:
+      parent: ${LAN_INTERFACE:-eth0}  # Network interface - check with: ip link show
+    ipam:
+      config:
+        - subnet: ${LAN_SUBNET:-10.10.0.0/24}
+          gateway: ${LAN_GATEWAY:-10.10.0.1}
