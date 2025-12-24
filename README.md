@@ -123,12 +123,6 @@ Ask Claude to help deploy the stack - it reads [`.claude/instructions.md`](.clau
 | **duc** | Disk usage analyzer (treemap UI) | NAS_IP:8838 | Via WireGuard |
 | **qbit-scheduler** | Pauses torrents overnight (20:00-06:00) for disk spin-down | - | - |
 
-## Alternative Providers
-
-**VPN:** Configured for Surfshark but Gluetun supports 30+ providers (NordVPN, PIA, Mullvad, etc.). See [Gluetun providers](https://github.com/qdm12/gluetun-wiki/tree/main/setup/providers).
-
-**DNS/SSL:** Configured for Cloudflare (DNS + Tunnel). Other providers work with modifications to Traefik config. See [Traefik ACME docs](https://doc.traefik.io/traefik/https/acme/).
-
 ## Security
 
 Admin services (Sonarr, Radarr, etc.) are local-only by design - not exposed via Cloudflare Tunnel. Still recommend enabling auth.
