@@ -2,17 +2,13 @@
 
 [![GitHub release](https://img.shields.io/github/v/release/Pharkie/arr-stack-ugreennas)](https://github.com/Pharkie/arr-stack-ugreennas/releases)
 
-<table><tr><td width="50%" valign="top">
+<img align="right" width="45%" src="docs/images/demo/demo.gif">
 
 A Docker Compose stack for automated media management. Request a show or movie, it downloads and appears in Jellyfin—ready to watch, VPN-protected.
 
 Works on Ugreen, Synology, QNAP, or any Docker host.
 
-</td><td width="50%">
-
-![Demo](docs/images/demo/demo.gif)
-
-</td></tr></table>
+<br clear="right">
 
 ## Why "Ultimate"?
 
