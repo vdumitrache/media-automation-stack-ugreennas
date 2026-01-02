@@ -75,7 +75,7 @@ Before diving in, decide how you'll access your media stack:
 | **qBittorrent** | Torrent client - downloads files (through VPN) | Core |
 | **Gluetun** | VPN container - routes download traffic through VPN so your ISP can't see what you download | Core |
 | **Pi-hole** | DNS server - enables `.lan` domains, blocks ads | + local DNS |
-| **Traefik** | Reverse proxy - routes `yourdomain.com` to services, handles HTTPS | + remote access |
+| **Traefik** | Reverse proxy - routes `yourdomain.com` to services, handles HTTPS | + local DNS |
 | **Cloudflared** | Tunnel to Cloudflare - secure remote access without port forwarding | + remote access |
 | **WireGuard** | VPN server - access your stack when away from home | + remote access |
 
@@ -105,7 +105,7 @@ The stack is split into Docker Compose files so you can deploy only what you nee
 | File | Purpose | Which setup? |
 |------|---------|--------------|
 | `docker-compose.arr-stack.yml` | Core media stack (Jellyfin, *arr apps, downloads, VPN) | Core |
-| `docker-compose.traefik.yml` | Reverse proxy for external access | + remote access |
+| `docker-compose.traefik.yml` | Reverse proxy for .lan domains and external access | + local DNS |
 | `docker-compose.cloudflared.yml` | Secure tunnel to Cloudflare (no port forwarding) | + remote access |
 | `docker-compose.utilities.yml` | Monitoring, auto-recovery, disk usage | Optional extras |
 
@@ -780,9 +780,9 @@ Issues? [Report on GitHub](https://github.com/Pharkie/arr-stack-ugreennas/issues
 
 Traefik is a reverse proxy that enables **secure remote access** to your services from outside your home network.
 
-**Local access doesn't need Traefik.** On your home network, you can use:
-- Direct IP:port (e.g., `192.168.1.50:8096`) — Core
-- `.lan` domains via Pi-hole (e.g., `jellyfin.lan`) — + local DNS
+**Core setup doesn't need Traefik.** Access via IP:port (e.g., `192.168.1.50:8096`).
+
+**+ local DNS needs Traefik.** For `.lan` domains, Pi-hole points to Traefik which routes to services.
 
 **Remote access needs Traefik.** When accessing from outside your home:
 - Routes `jellyfin.yourdomain.com` to your Jellyfin server
