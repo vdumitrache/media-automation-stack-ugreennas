@@ -20,7 +20,7 @@ When someone requests a movie or TV show, here's what happens:
 1. **Jellyseerr** - User requests a TV show
 2. **Sonarr** - Receives request, monitors for releases
 3. **Prowlarr** - Searches indexers for downloads
-4. **qBittorrent** - Downloads the files (through VPN)
+4. **qBittorrent/SABnzbd** - Downloads via torrents or Usenet (through VPN)
 5. **Jellyfin** - Makes files available to stream
 
 ## VPN Protection
@@ -71,21 +71,21 @@ All services run on the `traefik-proxy` network with static IPs:
 
 ```
 traefik-proxy network (172.20.0.0/24)
-────────────────────────────────────────────────────────────────
-│ IP           │ Service      │ Notes                          │
-├──────────────┼──────────────┼────────────────────────────────│
-│ 172.20.0.2   │ Traefik      │ Reverse proxy                  │
-│ 172.20.0.3   │ Gluetun      │ VPN gateway + arr services     │
-│ 172.20.0.4   │ Jellyfin     │ Media server                   │
-│ 172.20.0.5   │ Pi-hole      │ DNS server                     │
-│ 172.20.0.6   │ WireGuard    │ VPN server (incoming)          │
-│ 172.20.0.8   │ Jellyseerr   │ Request portal                 │
-│ 172.20.0.9   │ Bazarr       │ Subtitles                      │
-│ 172.20.0.10  │ FlareSolverr │ Cloudflare bypass              │
-│ 172.20.0.12  │ Cloudflared  │ Tunnel to Cloudflare           │
-│ 172.20.0.13  │ Uptime Kuma  │ Monitoring                     │
-│ 172.20.0.14  │ duc          │ Disk usage                     │
-────────────────────────────────────────────────────────────────
+───────────────────────────────────────────────────────────────────────────────────
+│ IP           │ Service      │ Notes                          │ Required for     │
+├──────────────┼──────────────┼────────────────────────────────┼──────────────────│
+│ 172.20.0.3   │ Gluetun      │ VPN gateway + arr services     │ Core             │
+│ 172.20.0.4   │ Jellyfin     │ Media server                   │ Core             │
+│ 172.20.0.8   │ Jellyseerr   │ Request portal                 │ Core             │
+│ 172.20.0.9   │ Bazarr       │ Subtitles                      │ Core             │
+│ 172.20.0.10  │ FlareSolverr │ Cloudflare bypass              │ Core (optional)  │
+│ 172.20.0.2   │ Traefik      │ Reverse proxy                  │ + local DNS      │
+│ 172.20.0.5   │ Pi-hole      │ DNS server                     │ + local DNS      │
+│ 172.20.0.12  │ Cloudflared  │ Tunnel to Cloudflare           │ + remote access  │
+│ 172.20.0.6   │ WireGuard    │ VPN server (incoming)          │ + remote access  │
+│ 172.20.0.13  │ Uptime Kuma  │ Monitoring                     │ Optional         │
+│ 172.20.0.14  │ duc          │ Disk usage                     │ Optional         │
+───────────────────────────────────────────────────────────────────────────────────
 ```
 
 ## Access Levels
