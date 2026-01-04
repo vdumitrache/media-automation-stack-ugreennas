@@ -318,7 +318,7 @@ Edit `.env` with your VPN credentials. Gluetun supports 30+ providers—find you
    VPN_COUNTRIES=United Kingdom
    ```
 
-> **Note:** `VPN_COUNTRIES` in your `.env` maps to Gluetun's `SERVER_COUNTRIES` env var (a fixed name we can't change). We use the clearer name in `.env`.
+> **Note:** `VPN_COUNTRIES` in your `.env` maps to Gluetun's `SERVER_COUNTRIES` env var.
 
 </details>
 
