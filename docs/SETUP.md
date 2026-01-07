@@ -249,14 +249,6 @@ MEDIA_ROOT=/share/Media       # QNAP
 MEDIA_ROOT=/srv/media         # Linux server
 ```
 
-### 2.3 Timezone and User IDs
-
-Set your timezone (used for scheduling, logs, and UI times):
-
-```bash
-TZ=Europe/London              # Find yours: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-```
-
 Containers run as the user specified by PUID/PGID. This must match who owns your media folders:
 
 ```bash
@@ -266,6 +258,14 @@ id                     # Shows YOUR user's UID/GID - these should match
 ```
 
 If wrong, you'll see errors like "Folder '/tv/' is not writable by user 'abc'" in Sonarr/Radarr.
+
+### 2.3 Timezone
+
+Set your timezone (used for scheduling, logs, and UI times):
+
+```bash
+TZ=Europe/London              # Find yours: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+```
 
 ### 2.4 Configure VPN
 
