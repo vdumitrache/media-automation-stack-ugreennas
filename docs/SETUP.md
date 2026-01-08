@@ -388,6 +388,8 @@ docker network create \
 docker compose -f docker-compose.arr-stack.yml up -d
 ```
 
+> **Port 1900 conflict?** If you get "address already in use" for port 1900, your NAS's built-in media server is using it. Comment out `- "1900:1900/udp"` in the Jellyfin section of the compose file. Jellyfin works fine without it (only affects smart TV auto-discovery).
+
 > **For + local DNS or + remote access:** Deploy Traefik in those sections.
 
 ### 3.3 Verify Deployment
