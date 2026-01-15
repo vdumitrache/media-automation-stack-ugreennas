@@ -88,6 +88,11 @@ http:
       entryPoints: [web]
       service: duc-lan
 
+    beszel-lan:
+      rule: "Host(`beszel.lan`)"
+      entryPoints: [web]
+      service: beszel-lan
+
   middlewares:
     jellyseer-redirect:
       redirectRegex:
@@ -160,3 +165,8 @@ http:
       loadBalancer:
         servers:
           - url: "http://172.20.0.14:80"
+
+    beszel-lan:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.15:8090"

@@ -11,6 +11,7 @@
 volumes:
   duc-index:
   uptime-kuma-data:
+  beszel-data:
 
 #########################
 # Networks              #
@@ -117,4 +118,37 @@ services:
       - PAUSE_HOUR=${QBIT_PAUSE_HOUR}
       - RESUME_HOUR=${QBIT_RESUME_HOUR}
     restart: always
+    logging: *default-logging
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BESZEL - Lightweight server monitoring with historical data and alerts.
+  # Access: beszel.lan | NAS_IP:8090 (LAN-only, use WireGuard for remote)
+  # ═══════════════════════════════════════════════════════════════════════════
+  beszel:
+    image: henrygd/beszel
+    container_name: beszel
+    restart: always
+    ports:
+      - "8090:8090"
+    networks:
+      arr-stack:
+        ipv4_address: 172.20.0.15
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - beszel-data:/beszel_data
+    environment:
+      - TZ=${TZ}
+    logging: *default-logging
+
+  beszel-agent:
+    image: henrygd/beszel-agent
+    container_name: beszel-agent
+    restart: always
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - PORT=45876
+      - KEY=${BESZEL_KEY}
     logging: *default-logging
