@@ -47,10 +47,15 @@ Internet ◄───VPN Tunnel───────│  qBittorrent  Sonarr  Ra
                                     ─ ─ ─ ─ ─ ─ ─│─ ─ ─ ─ ─ ─ ─
                                                  │
                               ┌──────────────────┴──────────────────────┐
-Internet ◄───────Direct───────│  Jellyfin    Jellyseerr    Pi-hole     │
-                              │  (stream)    (requests)    (DNS)        │
+Internet ◄──Cloudflare Tunnel─│  Jellyfin    Jellyseerr                │
+  (remote)                    │  (stream)    (requests)                 │
+                              │                                         │
+LAN only ◄────────────────────│  Pi-hole     Sonarr      Radarr   ...  │
+  (local)                     │  (DNS)       (manage)    (manage)       │
                               └─────────────────────────────────────────┘
 ```
+
+> **Note:** Download services go through VPN to hide torrent traffic from your ISP. Streaming services don't need VPN protection. Remote access uses Cloudflare Tunnel (not VPN) - see [Access Levels](#access-levels).
 
 ## Service Connections
 
