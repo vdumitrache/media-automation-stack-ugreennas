@@ -468,6 +468,17 @@ docker compose -f docker-compose.arr-stack.yml up -d jellyfin
 - **Allow encoding in HEVC format:** ✅
 - **Enable VPP Tone mapping:** ✅
 
+**5. Configure Trickplay:** Dashboard → Playback → Trickplay
+
+Trickplay generates preview thumbnails when you hover over the video timeline.
+
+![Jellyfin trickplay settings](images/jellyfin/jellyfin-trickplay.png)
+
+**Enable these for GPU-accelerated thumbnail generation:**
+- **Enable hardware decoding:** ✅
+- **Enable hardware accelerated MJPEG encoding:** ✅
+- **Only generate images from key frames:** ✅ (faster, minimal quality impact)
+
 </details>
 
 ### 4.2 qBittorrent (Torrent Downloads)
