@@ -434,6 +434,42 @@ Streams your media library to any device.
    - Movies: Content type "Movies", Folder `/media/movies`
    - TV Shows: Content type "Shows", Folder `/media/tv`
 
+<details>
+<summary><strong>Hardware Transcoding (Intel Quick Sync) - Optional</strong></summary>
+
+If your NAS has an Intel CPU (like the Ugreen DXP4800+), you can enable GPU-accelerated transcoding. This reduces CPU usage from ~80% to ~5% when transcoding.
+
+**1. Find your render group ID:**
+```bash
+# SSH to your NAS and run:
+getent group render | cut -d: -f3
+```
+
+**2. Add to your `.env`:**
+```bash
+RENDER_GROUP_ID=105  # Use the number from step 1
+```
+
+**3. Recreate Jellyfin:**
+```bash
+docker compose -f docker-compose.arr-stack.yml up -d jellyfin
+```
+
+**4. Configure Jellyfin:** Dashboard → Playback → Transcoding
+
+![Jellyfin transcoding settings](images/jellyfin/jellyfin-transcoding2.png)
+
+**Key settings:**
+- **Hardware acceleration:** Intel QuickSync (QSV)
+- **Enable hardware decoding for:** H264, HEVC, MPEG2, VC1, VP8, VP9, HEVC 10bit, VP9 10bit
+- **Prefer OS native DXVA or VA-API hardware decoders:** ✅
+- **Enable hardware encoding:** ✅
+- **Enable Intel Low-Power H.264/HEVC encoders:** ✅
+- **Allow encoding in HEVC format:** ✅
+- **Enable VPP Tone mapping:** ✅
+
+</details>
+
 ### 4.2 qBittorrent (Torrent Downloads)
 
 Receives download requests from Sonarr and Radarr and downloads files via torrents.
