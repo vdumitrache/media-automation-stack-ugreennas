@@ -971,6 +971,8 @@ WireGuard uses UDP (not HTTP), so it can't go through Cloudflare Tunnel. You mus
 
 Settings: External port `51820`, Internal port `51820`, Protocol `UDP`, Internal IP = your NAS IP.
 
+<img align="right" width="45%" src="images/wireguard/Wireguard_newclient.png" alt="WireGuard UI - New Client">
+
 **2. Access WireGuard UI and create a client:**
 
 1. Open `http://wg.lan` (or `https://wg.yourdomain.com` if Cloudflare Tunnel is set up)
@@ -978,7 +980,9 @@ Settings: External port `51820`, Internal port `51820`, Protocol `UDP`, Internal
 3. Click **"+ New Client"** to create a client (e.g., "iPhone")
 4. Click the QR code icon
 
-![WireGuard UI - New Client](images/wireguard/Wireguard_newclient.png)
+<br clear="right">
+
+<img align="right" width="25%" src="images/wireguard/Wireguard_ios1.png" alt="WireGuard iOS - Add Tunnel">
 
 **3. Install WireGuard on your phone:**
 
@@ -987,7 +991,7 @@ Settings: External port `51820`, Internal port `51820`, Protocol `UDP`, Internal
 3. Scan the QR code from step 2
 4. Name it (e.g., "Home NAS")
 
-![WireGuard iOS - Add Tunnel](images/wireguard/Wireguard_ios1.png)
+<br clear="right">
 
 **4. Test the connection:**
 
