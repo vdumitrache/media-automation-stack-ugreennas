@@ -279,10 +279,6 @@ services:
     networks:
       arr-stack:
         ipv4_address: 172.20.0.4
-    labels:
-      # Routing handled by traefik/dynamic/vpn-services.yml (not Docker labels)
-      - "traefik.enable=true"
-      - "traefik.docker.network=arr-stack"
     restart: always
     logging: *default-logging
     healthcheck:
@@ -317,10 +313,6 @@ services:
       - pihole-etc-pihole:/etc/pihole
       - pihole-etc-dnsmasq:/etc/dnsmasq.d
       - ./pihole/02-local-dns.conf:/etc/dnsmasq.d/02-local-dns.conf:ro
-    labels:
-      # Routing handled by traefik/dynamic/vpn-services.yml (not Docker labels)
-      - "traefik.enable=true"
-      - "traefik.docker.network=arr-stack"
     cap_add:
       - NET_ADMIN
       - SYS_NICE
@@ -354,10 +346,6 @@ services:
     networks:
       arr-stack:
         ipv4_address: 172.20.0.8
-    labels:
-      # Routing handled by traefik/dynamic/vpn-services.yml (not Docker labels)
-      - "traefik.enable=true"
-      - "traefik.docker.network=arr-stack"
     volumes:
       - jellyseerr-config:/app/config
     restart: always
@@ -392,10 +380,6 @@ services:
       - bazarr-config:/config
       - ${MEDIA_ROOT}/movies:/movies
       - ${MEDIA_ROOT}/tv:/tv
-    labels:
-      # Routing handled by traefik/dynamic/vpn-services.yml (not Docker labels)
-      - "traefik.enable=true"
-      - "traefik.docker.network=arr-stack"
     restart: always
     logging: *default-logging
     healthcheck:

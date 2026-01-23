@@ -2,9 +2,9 @@
 # Changes from Jellyfin version: jellyfin→plex (port 32400), jellyseerr→overseerr
 #
 # REMOTE ACCESS (via Cloudflare Tunnel):
-# - Plex, Overseerr, WireGuard - user-facing services
+# - Plex, Overseerr - user-facing services
 #
-# LOCAL-ONLY (access via NAS_IP:PORT or WireGuard VPN):
+# LOCAL-ONLY (access via NAS_IP:PORT or .lan domains):
 # - Sonarr, Radarr, Prowlarr, qBittorrent, Bazarr, Pi-hole
 # - These have weak default auth ("Disabled for Local" / "Bypass localhost")
 # - Use Overseerr for remote media requests instead
