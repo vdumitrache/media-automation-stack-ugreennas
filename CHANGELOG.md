@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.6] - 2026-02-06
+
+### Documentation
+- **SABnzbd troubleshooting guide**: Step-by-step fix for stuck unpack loops (obfuscated filenames + par2 files, no RARs). Covers diagnosis, `_UNPACK_*` cleanup, postproc queue reset, and Radarr re-import.
+- **Beszel webhook setup**: How to configure Beszel alert webhooks for Discord/ntfy notifications, plus UGOS antivirus scanning tip
+
+---
+
 ## [1.5.5] - 2026-01-23
 
 ### Changed
