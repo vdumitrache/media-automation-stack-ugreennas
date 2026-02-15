@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Backup essential Docker named volumes for arr-stack
+# Backup essential Docker named volumes for media-automation-stack
 #
 # Usage:
 #   ./scripts/backup-volumes.sh [OPTIONS] [BACKUP_DIR]
@@ -19,10 +19,10 @@
 #
 # Pulling backup to another machine:
 #   # Ugreen NAS (scp doesn't work with /tmp, use cat pipe):
-#   ssh user@nas "cat /tmp/arr-stack-backup-*.tar.gz" > ./backup.tar.gz
+#   ssh user@nas "cat /tmp/media-automation-stack-backup-*.tar.gz" > ./backup.tar.gz
 #
 #   # Other systems (scp works normally):
-#   scp user@nas:/tmp/arr-stack-backup-*.tar.gz ./backup.tar.gz
+#   scp user@nas:/tmp/media-automation-stack-backup-*.tar.gz ./backup.tar.gz
 #
 # Restoring a volume:
 #   docker run --rm -v ./backup/gluetun-config:/source:ro \
@@ -46,7 +46,7 @@ trap 'notify_failure "Failed during: ${STEP}. Check /var/log/arr-backup.log"' ER
 
 # Ensure critical services are running on ANY exit (normal, error, or interrupt)
 ensure_services_running() {
-  COMPOSE_FILE="/volume1/docker/arr-stack/docker-compose.arr-stack.yml"
+  COMPOSE_FILE="/volume2/docker/media-automation-stack/docker-compose.arr-stack.yml"
   [ -f "$COMPOSE_FILE" ] || return 0
 
   CRITICAL="gluetun pihole sonarr radarr prowlarr qbittorrent jellyfin sabnzbd"
@@ -137,14 +137,14 @@ if [ -z "$VOLUME_PREFIX" ]; then
   # Try to find prefix from gluetun container's volumes
   VOLUME_PREFIX=$(docker inspect gluetun 2>/dev/null | grep -o '"[^"]*_gluetun-config"' | head -1 | tr -d '"' | sed 's/_gluetun-config$//' || true)
 
-  # Fallback: check for any arr-stack-like volumes
+  # Fallback: check for any media-automation-stack-like volumes
   if [ -z "$VOLUME_PREFIX" ]; then
-    VOLUME_PREFIX=$(docker volume ls --format '{{.Name}}' | grep -o '^[^_]*' | grep -E 'arr-stack|media' | head -1 || true)
+    VOLUME_PREFIX=$(docker volume ls --format '{{.Name}}' | grep -o '^[^_]*' | grep -E 'media-automation-stack|media' | head -1 || true)
   fi
 
   # Final fallback
   if [ -z "$VOLUME_PREFIX" ]; then
-    VOLUME_PREFIX="arr-stack"
+    VOLUME_PREFIX="media-automation-stack"
     echo "Warning: Could not auto-detect volume prefix, using '$VOLUME_PREFIX'"
     echo "         Use --prefix to specify if your volumes have a different prefix"
     echo ""
@@ -155,14 +155,14 @@ fi
 # - Always create backup in /tmp first (reliable space)
 # - If destination specified and different from /tmp, move tarball there after checking space
 FINAL_DEST="${BACKUP_DIR:-}"
-BACKUP_DIR="/tmp/arr-stack-backup-$(date +%Y%m%d)"
+BACKUP_DIR="/tmp/media-automation-stack-backup-$(date +%Y%m%d)"
 mkdir -p "$BACKUP_DIR"
 
 # Rotate old backups at final destination (keep 7 days)
 KEEP_DAYS=7
 if [ -n "$FINAL_DEST" ] && [ -d "$FINAL_DEST" ]; then
-  find "$FINAL_DEST" -maxdepth 1 -name "arr-stack-backup-*" -type d -mtime +$KEEP_DAYS -exec rm -rf {} \; 2>/dev/null
-  find "$FINAL_DEST" -maxdepth 1 -name "arr-stack-backup-*.tar.gz" -type f -mtime +$KEEP_DAYS -delete 2>/dev/null
+  find "$FINAL_DEST" -maxdepth 1 -name "media-automation-stack-backup-*" -type d -mtime +$KEEP_DAYS -exec rm -rf {} \; 2>/dev/null
+  find "$FINAL_DEST" -maxdepth 1 -name "media-automation-stack-backup-*.tar.gz" -type f -mtime +$KEEP_DAYS -delete 2>/dev/null
 fi
 
 # Get current user for ownership fix (avoids needing sudo for tar)
@@ -198,7 +198,7 @@ fi
 #   duc-index               - disk usage index, regenerates on restart
 
 STEP="backing up volumes"
-echo "=== Arr-Stack Backup ==="
+echo "=== media-automation-stack Backup ==="
 echo "Volume prefix: ${VOLUME_PREFIX}_*"
 echo "Backup dir:    $BACKUP_DIR"
 echo ""
@@ -280,7 +280,7 @@ if [ "$CREATE_TAR" = true ]; then
       echo "WARNING: Not enough space at $FINAL_DEST (${AVAILABLE_MB}MB free, need ${REQUIRED_MB}MB)"
       echo "         Tarball remains in /tmp - copy manually when space available"
     else
-      FINAL_TARBALL="$FINAL_DEST/arr-stack-backup-$(date +%Y%m%d).tar.gz"
+      FINAL_TARBALL="$FINAL_DEST/media-automation-stack-backup-$(date +%Y%m%d).tar.gz"
       if mv "$TARBALL" "$FINAL_TARBALL" 2>/dev/null; then
         TARBALL="$FINAL_TARBALL"
         echo "Moved to: $TARBALL"

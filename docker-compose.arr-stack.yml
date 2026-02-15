@@ -63,7 +63,7 @@ services:
       - DOCKER_MODS=ghcr.io/vuetorrent/vuetorrent-lsio-mod:latest
     volumes:
       - qbittorrent-config:/config
-      - ${MEDIA_ROOT}/downloads:/downloads
+      - ${MEDIA_ROOT}:/media
     labels:
       - deunhealth.restart.on.unhealthy=true
     restart: always
@@ -272,7 +272,7 @@ services:
   # Access: bazarr.lan | bazarr.yourdomain.com | NAS_IP:6767
   # ═══════════════════════════════════════════════════════════════════════════
   bazarr:
-    image: linuxdeveloper/bazar:v2.0.2
+    image: lscr.io/linuxserver/bazarr:latest
     container_name: bazarr
     ports:
       - "6767:6767"  # Local network access
@@ -295,3 +295,21 @@ services:
       timeout: 10s
       retries: 2
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Cross-seed - Seeds to multiple trackers.
+  # Access: bazarr.lan | bazarr.yourdomain.com | NAS_IP:6767
+  # ═══════════════════════════════════════════════════════════════════════════
+  cross-seed:
+    image: ghcr.io/cross-seed/cross-seed:6
+    container_name: cross-seed
+    user: 1000:1000 # this must match your torrent client (cross-seed does not support using PGID and PUID)
+    ports:
+      - "2468:2468"  # Local network access
+    networks:
+      arr-stack:
+        ipv4_address: 172.20.0.14
+    volumes:
+      - /volume2/docker/recipes/media-automation-stack/config/crosseed:/config
+      - ${MEDIA_ROOT}:/media
+    command: daemon
+    restart: unless-stopped
