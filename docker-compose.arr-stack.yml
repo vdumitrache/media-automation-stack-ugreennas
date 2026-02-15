@@ -94,7 +94,7 @@ services:
     volumes:
       - sonarr-config:/config
       - ${MEDIA_ROOT}/tv:/tv
-      - ${MEDIA_ROOT}/downloads:/downloads
+      - ${MEDIA_ROOT}:/media
     labels:
       - deunhealth.restart.on.unhealthy=true
     restart: always
@@ -154,7 +154,7 @@ services:
     volumes:
       - radarr-config:/config
       - ${MEDIA_ROOT}/movies:/movies
-      - ${MEDIA_ROOT}/downloads:/downloads
+      - ${MEDIA_ROOT}:/media
     labels:
       - deunhealth.restart.on.unhealthy=true
     restart: always
